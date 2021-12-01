@@ -13,9 +13,8 @@ int collatzSequence(int n) {
     } else if (n % 2 == 0) {
         printf("%i -> ", n);
         return collatzSequence(n / 2);
-    } else if (n % 2 == 1) {
+    } else {
         printf("%i -> ", n);
         return collatzSequence(3 * n + 1);
     }
-    return 0;
 }
