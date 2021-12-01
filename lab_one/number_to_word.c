@@ -63,7 +63,7 @@ void number_to_word(int userInput) {
                 printf("eight\n");
                 break;
             case '9':
-                printf("zero\n");
+                printf("nine\n");
                 break;
         }
     }
