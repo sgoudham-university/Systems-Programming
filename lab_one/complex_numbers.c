@@ -28,7 +28,6 @@ int main() {
     printf("\nComplexNumberFour{realPart: %i, imaginaryPart: %i}", complexNumberFour->realPart, complexNumberFour->imaginaryPart);
 
     free(complexNumberOne);
-    // TODO 03/12/2021 -> Warning Message "Local variable 'complexNumberTwo' may point to deallocated memory" Why?
     free(complexNumberTwo);
     free(complexNumberThree);
     free(complexNumberFour);
