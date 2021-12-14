@@ -2,18 +2,8 @@
 
 typedef struct List {
     int *array;
-    int usedSize;
+    int currentSize;
     int maxSize;
-
-    void (*append)(struct List *list, int element);
-
-    void (*remove)(struct List *list, int element);
-
-    int (*length)(struct List *list);
-
-    void (*print)(struct List *list);
-
-    void (*destroy)(struct List *list);
 } List;
 
 List *newList() {
@@ -31,34 +21,29 @@ List *newList() {
     }
 
     list->maxSize = 10;
-    list->usedSize = 0;
-    list->append = &append;
-    list->remove = &delete;
-    list->length = &length;
-    list->print = &print;
-    list->destroy = &destroyList;
+    list->currentSize = 0;
 
     return list;
 }
 
-void destroyList(struct List *list) {
+void List_destroy(struct List *list) {
     free(list->array);
     list->array = NULL;
     free(list);
 }
 
-void append(struct List *list, int element) {
-    if (list->usedSize == list->maxSize) {
+void List_append(struct List *list, int element) {
+    if (list->currentSize == list->maxSize) {
         list->maxSize *= 2;
         list->array = realloc(list->array, list->maxSize * sizeof(int));
         // TODO: Question For Tom: How do I handle realloc failure? // What's the best way to handle a failure like this?
     }
-    list->array[list->usedSize++] = element;
+    list->array[list->currentSize++] = element;
 }
 
-void delete(struct List *list, int element) {
+void List_remove(struct List *list, int element) {
     int positionToDelete = -1;
-    for (int i = 0; i < list->usedSize; i++) {
+    for (int i = 0; i < list->currentSize; i++) {
         if (list->array[i] == element) {
             positionToDelete = i;
         }
@@ -69,21 +54,21 @@ void delete(struct List *list, int element) {
         return;
     }
 
-    for (int i = positionToDelete; i < list->usedSize; i++) {
+    for (int i = positionToDelete; i < list->currentSize; i++) {
         list->array[i] = list->array[i + 1];
     }
 
-    list->usedSize -= 1;
+    list->currentSize -= 1;
 }
 
-int length(struct List *list) {
-    return list->usedSize;
+int List_length(struct List *list) {
+    return list->currentSize;
 }
 
-void print(struct List *list) {
+void List_print(struct List *list) {
     printf("\n[");
-    for (int i = 0; i < list->usedSize; i++) {
-        if (i == list->usedSize - 1) {
+    for (int i = 0; i < list->currentSize; i++) {
+        if (i == list->currentSize - 1) {
             printf("%i", list->array[i]);
         } else {
             printf("%i, ", list->array[i]);
