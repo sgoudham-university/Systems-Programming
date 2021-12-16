@@ -2,18 +2,18 @@
 
 /*
  * -- IMPORTANT --
- * INT_MAX (2147483647) is reserved to be returned for ERRORS and therefore cannot be inserted into this Dynamic List
+ * 2147483647 -> 2147483642 is reserved to be returned for ERRORS and therefore cannot be inserted into this Dynamic List
  */
 
 /*
  * -- ERROR CODES --
  *
- * [ERRNO 001] -> Cannot Allocate Memory To List
- * [ERRNO 002] -> Cannot Allocate Memory To Backing Array
- * [ERRNO 003] -> Cannot Reallocate Memory To Backing Array
- * [ERRNO 004] -> Index Out Of Bounds For Retrieving Element
- * [ERRNO 005] -> Value 2147483647 Cannot Be Inserted Into List
- * [ERRNO 006] -> Element Does Not Exist Within List
+ * [ERRNO 2147483647] -> Cannot Allocate Memory To List
+ * [ERRNO 2147483646] -> Cannot Allocate Memory To Backing Array
+ * [ERRNO 2167483645] -> Cannot Reallocate Memory To Backing Array
+ * [ERRNO 2147483644] -> Index Out Of Bounds For Retrieving Element
+ * [ERRNO 2147483643] -> Value 2147483647 Cannot Be Inserted Into List
+ * [ERRNO 2147483642] -> Element Does Not Exist Within List
  */
 
 
@@ -26,6 +26,10 @@ int main() {
     for (int i = 0; i < 10; i++) {
         List_append(list, i + 1);
     }
+
+    // Slice The List
+    // EXPECTED -> [1, 2, 3, 4, 5]
+    List *slicedList = List_slice(list, 2, 4);
 
     // Copy List Into ListCopy
     List *listCopy = List_copy(list);
@@ -69,10 +73,10 @@ int main() {
     // Free Up The Memory Allocated For The List
     // EXPECTED -> Memory Freed
     if (list) {
-        List_destroy(list);
+        List_destroy(&list);
     }
     if (listCopy) {
-        List_destroy(listCopy);
+        List_destroy(&listCopy);
     }
 
     return 0;
