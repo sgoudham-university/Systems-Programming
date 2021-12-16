@@ -1,78 +1,123 @@
 #include "list.h"
 
-typedef struct List {
-    int *array;
-    int currentSize;
-    int maxSize;
+List *List_createList(int maxSize, int currentSize);
+
+typedef struct list {
+    int *_array;
+    int _currentSize;
+    int _maxSize;
 } List;
 
 List *newList() {
-    List *list = malloc(sizeof(List));
-    if (!list) {
-        printf("\nCannot Allocate Memory To List -> Returning NULL");
-        return NULL;
-    }
-
-    list->array = calloc(10, sizeof(int));
-    if (!list->array) {
-        printf("\nCannot Allocate Memory To Array Within List -> Aborting Operation");
-        free(list);
-        return NULL;
-    }
-
-    list->maxSize = 10;
-    list->currentSize = 0;
-
-    return list;
+    return List_createList(10, -1);
 }
 
-void List_destroy(struct List *list) {
-    free(list->array);
-    list->array = NULL;
-    free(list);
-}
-
-void List_append(struct List *list, int element) {
-    if (list->currentSize == list->maxSize) {
-        list->maxSize *= 2;
-        list->array = realloc(list->array, list->maxSize * sizeof(int));
-        // TODO: Question For Tom: How do I handle realloc failure? // What's the best way to handle a failure like this?
+int List_get(List *list, int index) {
+    if (index < 0 || index >= list->_currentSize) {
+//        printf("[ERRNO 004]\n");
+        return INT_MAX;
     }
-    list->array[list->currentSize++] = element;
+    return list->_array[index];
 }
 
-void List_remove(struct List *list, int element) {
-    int positionToDelete = -1;
-    for (int i = 0; i < list->currentSize; i++) {
-        if (list->array[i] == element) {
+void List_append(List *list, int element) {
+    if (element == INT_MAX) {
+        printf("[ERRNO 005]\n");
+        return;
+    }
+
+    if (list->_currentSize + 1 == list->_maxSize) {
+        list->_maxSize *= 2;
+        int *temp = realloc(list->_array, list->_maxSize * sizeof(int));
+        if (!temp) {
+//            printf("[ERRNO 003]\n");
+            return;
+        } else {
+            list->_array = temp;
+        }
+    }
+    list->_array[++list->_currentSize] = element;
+}
+
+void List_remove(List *list, int element) {
+    int positionToDelete = INT_MAX;
+    for (int i = 0; i < list->_currentSize + 1; i++) {
+        if (list->_array[i] == element) {
             positionToDelete = i;
         }
     }
 
-    if (positionToDelete == -1) {
-        printf("\nElement '%i' Does Not Exist Within List", element);
+    if (positionToDelete == INT_MAX) {
+//        printf("[ERRNO 006]\n");
         return;
     }
 
-    for (int i = positionToDelete; i < list->currentSize; i++) {
-        list->array[i] = list->array[i + 1];
+    for (int i = positionToDelete; i < list->_currentSize + 1; i++) {
+        list->_array[i] = list->_array[i + 1];
     }
 
-    list->currentSize -= 1;
+    list->_currentSize--;
 }
 
-int List_length(struct List *list) {
-    return list->currentSize;
+void List_sort(List *list) {
+
 }
 
-void List_print(struct List *list) {
+List *List_copy(List *list) {
+    List *listCopy = List_createList(list->_maxSize, list->_currentSize);
+    if (!listCopy) {
+        return NULL;
+    }
+
+    for (int i = 0; i < list->_currentSize + 1; i++) {
+        listCopy->_array[i] = list->_array[i];
+    }
+
+    return listCopy;
+}
+
+List *List_slice(List *list, int start_index, int end_index) {
+
+}
+
+int List_length(List *list) {
+    return list->_currentSize + 1;
+}
+
+void List_print(List *list) {
     printf("\n[");
-    for (int i = 0; i < list->currentSize; i++) {
-        if (i == list->currentSize - 1) {
-            printf("%i", list->array[i]);
+    for (int i = 0; i < list->_currentSize + 1; i++) {
+        if (i == list->_currentSize) {
+            printf("%i", list->_array[i]);
         } else {
-            printf("%i, ", list->array[i]);
+            printf("%i, ", list->_array[i]);
         }
     }
     printf("]");
+}
+
+void List_destroy(List *list) {
+    free(list->_array);
+    list->_array = NULL;
+    free(list);
+}
+
+List *List_createList(int maxSize, int currentSize) {
+    List *list = malloc(sizeof(List));
+    if (!list) {
+//        printf("[ERRNO 001]\n");
+        return NULL;
+    }
+
+    list->_array = calloc(maxSize, sizeof(int));
+    if (!list->_array) {
+//        printf("[ERRNO 002]\n");
+        free(list);
+        return NULL;
+    }
+
+    list->_maxSize = maxSize;
+    list->_currentSize = currentSize;
+
+    return list;
 }

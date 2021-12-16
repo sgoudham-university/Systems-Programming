@@ -1,6 +1,24 @@
-#include "list.c"
+#include "list.h"
+
+/*
+ * -- IMPORTANT --
+ * INT_MAX (2147483647) is reserved to be returned for ERRORS and therefore cannot be inserted into this Dynamic List
+ */
+
+/*
+ * -- ERROR CODES --
+ *
+ * [ERRNO 001] -> Cannot Allocate Memory To List
+ * [ERRNO 002] -> Cannot Allocate Memory To Backing Array
+ * [ERRNO 003] -> Cannot Reallocate Memory To Backing Array
+ * [ERRNO 004] -> Index Out Of Bounds For Retrieving Element
+ * [ERRNO 005] -> Value 2147483647 Cannot Be Inserted Into List
+ * [ERRNO 006] -> Element Does Not Exist Within List
+ */
+
 
 int main() {
+
     // Create New List
     List *list = newList();
 
@@ -9,9 +27,16 @@ int main() {
         List_append(list, i + 1);
     }
 
+    // Copy List Into ListCopy
+    List *listCopy = List_copy(list);
+
+    // Retrieve The 5th Element Of The List
+    // EXPECTED -> 5
+    printf("Element At Index 5 -> '%i'", List_get(list, 5));
+
     // Print Out The Length Of The List
     // EXPECTED -> 10
-    printf("Length Of List -> %i", List_length(list));
+    printf("\nLength Of List -> %i", List_length(list));
 
     // Force List To Dynamically Resize With 11th Element
     // EXPECTED -> List resized to hold 20 elements and 11 appended into list
@@ -43,7 +68,12 @@ int main() {
 
     // Free Up The Memory Allocated For The List
     // EXPECTED -> Memory Freed
-    List_destroy(list);
+    if (list) {
+        List_destroy(list);
+    }
+    if (listCopy) {
+        List_destroy(listCopy);
+    }
 
     return 0;
 }
