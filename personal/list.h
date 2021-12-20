@@ -1,13 +1,13 @@
 #include "stdlib.h"
 #include "stdio.h"
 
-#define ERRNO_001 2147483647
+#define INT_MAX 2147483647
 #define ERRNO_002 2147483646
 #define ERRNO_003 2147483645
 #define ERRNO_004 2147483644
 #define ERRNO_005 2147483643
 #define ERRNO_006 2147483642
-#define ERRNO_SIZE 6
+#define ERRNO_SIZE 5
 
 typedef struct list List;
 

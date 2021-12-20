@@ -3,7 +3,6 @@
 /*
  * -- ERROR CODES --
  *
- * [ERRNO 2147483647] -> Cannot Allocate Memory To List
  * [ERRNO 2147483646] -> Cannot Allocate Memory To Backing Array
  * [ERRNO 2167483645] -> Cannot Reallocate Memory To Backing Array
  * [ERRNO 2147483644] -> Index Out Of Bounds For Retrieving Element
@@ -13,6 +12,10 @@
 
 List *List_createList(int maxSize, int currentSize);
 
+int List_merge(List *list, int start_index, int mid_index, int end_index);
+
+void List_mergeSort(List *list, int start_index, int end_index);
+
 typedef struct list {
     int *_array;
     int _currentSize;
@@ -20,7 +23,6 @@ typedef struct list {
 } List;
 
 int errorCodes[ERRNO_SIZE] = {
-        ERRNO_001,
         ERRNO_002,
         ERRNO_003,
         ERRNO_004,
@@ -79,8 +81,59 @@ int List_remove(List *list, int element) {
     return 0;
 }
 
-void List_sort(List *list) {
+int List_merge(List *list, int start_index, int mid_index, int end_index) {
+    List *left = List_slice(list, start_index, mid_index + 1);
+    if (!left) {
+        return 1;
+    }
+    List *right = List_slice(list, mid_index + 1, end_index + 1);
+    if (!right) {
+        return 1;
+    }
 
+    int leftSuccessCode = List_append(left, INT_MAX);
+    if (leftSuccessCode != 0) {
+        return 1;
+    }
+    int rightSuccessCode = List_append(right, INT_MAX);
+    if (rightSuccessCode != 0) {
+        return 1;
+    }
+
+    int left_index = 0;
+    int right_index = 0;
+
+    for (int i = start_index; i < end_index + 1; i++) {
+        if (left->_array[left_index] < right->_array[right_index]) {
+            list->_array[i] = left->_array[left_index];
+            left_index++;
+        } else {
+            list->_array[i] = right->_array[right_index];
+            right_index++;
+        }
+    }
+
+    List_destroy(&left);
+    List_destroy(&right);
+
+    return 0;
+}
+
+void List_mergeSort(List *list, int start_index, int end_index) {
+    if (start_index < end_index) {
+        int mid_index = (start_index + end_index) / 2;
+        List_mergeSort(list, start_index, mid_index);
+        List_mergeSort(list, mid_index + 1, end_index);
+        int mergeSuccessCode = List_merge(list, start_index, mid_index, end_index);
+        if (mergeSuccessCode != 0) {
+            exit(0);
+        }
+    }
+}
+
+
+void List_sort(List *list) {
+    List_mergeSort(list, 0, list->_currentSize);
 }
 
 List *List_copy(List *list) {
@@ -103,7 +156,7 @@ List *List_slice(List *list, int start_index, int end_index) {
 
     int slicedCurrentSize = end_index - start_index;
     int slicedMaxSize = slicedCurrentSize * 2;
-    List *slicedList = List_createList(slicedMaxSize, slicedCurrentSize);
+    List *slicedList = List_createList(slicedMaxSize, slicedCurrentSize - 1);
     if (!slicedList) {
         return NULL;
     }
@@ -122,7 +175,7 @@ int List_length(List *list) {
 }
 
 void List_print(List *list) {
-    printf("\n[");
+    printf("[");
     for (int i = 0; i < list->_currentSize + 1; i++) {
         if (i == list->_currentSize) {
             printf("%i", list->_array[i]);
