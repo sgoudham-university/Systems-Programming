@@ -1,4 +1,5 @@
 #include "list.h"
+#include "pthread.h"
 
 /*
  * -- ERROR CODES --
@@ -6,7 +7,7 @@
  * [ERRNO 2147483646] -> Cannot Allocate Memory To Backing Array
  * [ERRNO 2167483645] -> Cannot Reallocate Memory To Backing Array
  * [ERRNO 2147483644] -> Index Out Of Bounds For Retrieving Element
- * [ERRNO 2147483643] -> Values 2147483647 -> 2147483642 Cannot Be Inserted Into List
+ * [ERRNO 2147483643] -> Values 2147483646 -> 2147483642 Cannot Be Inserted Into List
  * [ERRNO 2147483642] -> Element Does Not Exist Within List
  */
 
@@ -23,11 +24,11 @@ typedef struct list {
 } List;
 
 int errorCodes[ERRNO_SIZE] = {
+        ERRNO_001,
         ERRNO_002,
         ERRNO_003,
         ERRNO_004,
-        ERRNO_005,
-        ERRNO_006
+        ERRNO_005
 };
 
 List *newList() {
@@ -35,8 +36,8 @@ List *newList() {
 }
 
 int List_get(List *list, int index) {
-    if (index < 0 || index >= list->_currentSize) {
-        return ERRNO_004;
+    if (index < 0 || index > list->_currentSize) {
+        return ERRNO_003;
     }
     return list->_array[index];
 }
@@ -44,7 +45,7 @@ int List_get(List *list, int index) {
 int List_append(List *list, int element) {
     for (int i = 0; i < ERRNO_SIZE; i++) {
         if (element == errorCodes[i]) {
-            return ERRNO_005;
+            return ERRNO_004;
         }
     }
 
@@ -52,13 +53,22 @@ int List_append(List *list, int element) {
         list->_maxSize *= 2;
         int *temp = realloc(list->_array, list->_maxSize * sizeof(int));
         if (!temp) {
-            return ERRNO_003;
+            return ERRNO_002;
         }
         list->_array = temp;
     }
     list->_array[++list->_currentSize] = element;
 
     return 0;
+}
+
+int List_insert(List *list, int index, int element) {
+    if (index < 0 || index > list->_currentSize) {
+        return ERRNO_003;
+    }
+    int previous_element = list->_array[index];
+    list->_array[index] = element;
+    return previous_element;
 }
 
 int List_remove(List *list, int element) {
@@ -70,7 +80,7 @@ int List_remove(List *list, int element) {
     }
 
     if (positionToDelete == -1) {
-        return ERRNO_006;
+        return ERRNO_005;
     }
 
     for (int i = positionToDelete; i < list->_currentSize + 1; i++) {
